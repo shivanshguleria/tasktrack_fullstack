@@ -3,3 +3,7 @@
 @import 'tailwindcss';
 
 @import "tailwindcss-primeui";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

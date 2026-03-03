@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { BellComponent } from '../../../notifications/bell/bell';
 // import {MatIconModule} from '@angular/material/icon';
 // import {MatButtonModule} from '@angular/material/button';
 // import {MatToolbarModule} from '@angular/material/toolbar';
@@ -9,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule,BellComponent],
   templateUrl: './header.html',
 
 })

@@ -9,7 +9,7 @@
     "test": "ng test"
   },
   "private": true,
-  "packageManager": "npm@11.6.2",
+  "packageManager": "npm@11.6.2", 
   "dependencies": {
     "@angular/cdk": "~21.2.0",
     "@angular/common": "^21.2.0",
@@ -20,9 +20,11 @@
     "@angular/router": "^21.2.0",
     "@hackernoon/pixel-icon-library": "^1.0.6",
     "@primeuix/themes": "^2.0.3",
+    "@stomp/stompjs": "^7.3.0",
     "jwt-decode": "^4.0.0",
     "primeng": "^21.1.1",
     "rxjs": "~7.8.0",
+    "sockjs-client": "^1.6.1",
     "tailwindcss-primeui": "^0.6.1",
     "tslib": "^2.3.0"
   },
@@ -31,6 +33,7 @@
     "@angular/cli": "^21.2.0",
     "@angular/compiler-cli": "^21.2.0",
     "@tailwindcss/postcss": "^4.1.12",
+    "@types/sockjs-client": "^1.5.4",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
