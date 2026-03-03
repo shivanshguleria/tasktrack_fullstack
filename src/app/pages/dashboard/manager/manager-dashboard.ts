@@ -26,13 +26,17 @@ export class Manager {
     ]
   },
       {
-    name: "Show User Reports",
+    name: "User Reports",
     componentDescription: "View user reports, measure productivity",
     links: [
       {
-      name: "View All reports",
-      href: "reports"
-    }
+      name: "Generate Report",
+      href: "reports/generate"
+      },
+      {
+      name: "View All Reports",
+      href: "reports/all"
+      }
     ]
   }
    ]

@@ -17,7 +17,6 @@ export class AdminDashboardComponent implements OnInit {
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    // You can later pull the specific admin name from your AuthService
     console.log('Admin Dashboard Initialized');
   }
 }

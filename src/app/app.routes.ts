@@ -31,7 +31,18 @@ export const routes: Routes = [
         path: 'users', 
         loadComponent: () => import('./pages/dashboard/admin/manage-users/manage-users').then(m => m.ManageUsersComponent) 
       }
-    ]
+      ,
+      {
+      path: 'reports/generate', 
+      loadComponent: () => import('./pages/dashboard/admin/report/generate/report').then(m => m.AdminReportComponent)
+    },
+    {
+      path: 'reports/all', 
+      loadComponent: () => import('./pages/dashboard/admin/report/view/view.report').then(m => m.ReportListComponent)
+    } 
+      
+    
+]
   },
 
   
@@ -61,6 +72,14 @@ export const routes: Routes = [
         // Ensure this path matches your actual folder/file name exactly
         loadComponent: () => import('./pages/dashboard/manager/dashboard/manager/workflow/view-workflow/view-workflow')
       },
+       {
+        path: 'reports/generate', 
+        loadComponent: () => import('./pages/dashboard/manager/report/generate/manager-report').then(m => m.ManagerReportComponent)
+      },
+      {
+        path: 'reports/all',
+       loadComponent: () => import('./pages/dashboard/manager/report/view/manager-report-view').then(m => m.ManagerReportListComponent)
+      }
 
     ]
   },

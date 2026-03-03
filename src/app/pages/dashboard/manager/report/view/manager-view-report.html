@@ -1,0 +1,62 @@
+<app-header></app-header>
+
+<main class="p-8 bg-zinc-950 min-h-[calc(100vh-64px)] text-white font-sans">
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
+      <div>
+        <h1 class="text-3xl font-bold text-indigo-400">User Report Search</h1>
+        <p class="text-zinc-500 text-sm mt-1">Viewing individual performance records.</p>
+      </div>
+
+      <!-- Search Input -->
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <input type="text" 
+               [(ngModel)]="targetUserId" 
+               (keyup.enter)="fetchReports()"
+               placeholder="Enter User ID..." 
+               class="bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm px-4 py-2 rounded-xl focus:border-indigo-500 outline-none"/>
+        <button (click)="fetchReports()" 
+                class="bg-indigo-600 hover:bg-indigo-700 px-5 py-2 rounded-xl text-sm font-medium transition-all">
+          Search
+        </button>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div *ngIf="isLoading" class="text-center py-10">
+        <div class="animate-spin h-8 w-8 border-b-2 border-indigo-500 mx-auto"></div>
+    </div>
+
+    <div *ngIf="errorMessage" class="p-4 mb-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading" class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+      <table class="w-full text-left">
+        <thead class="bg-zinc-950 text-zinc-500 text-xs uppercase border-b border-zinc-800">
+          <tr>
+            <th class="px-6 py-4">Ref ID</th>
+            <th class="px-6 py-4">Employee Name</th> <!-- Focus on User -->
+            <th class="px-6 py-4">Tasks</th>
+            <th class="px-6 py-4">Efficiency</th>
+            <th class="px-6 py-4 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of reports" class="border-b border-zinc-800/50 hover:bg-zinc-800/20">
+            <td class="px-6 py-4 font-mono text-indigo-400">#{{ report.reportID }}</td>
+            <td class="px-6 py-4 font-semibold">{{ report.userName }}</td>
+            <td class="px-6 py-4">{{ report.tasksCompleted }} / {{ report.tasksCompleted + report.pendingTasks }}</td>
+            <td class="px-6 py-4 text-indigo-400 font-bold">{{ report.completionRate }}%</td>
+            <td class="px-6 py-4 text-right">
+              <button (click)="onDeleteReport(report.reportID)" class="text-zinc-500 hover:text-red-500">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

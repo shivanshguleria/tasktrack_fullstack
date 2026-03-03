@@ -30,13 +30,21 @@
       </div>
 
       <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl hover:border-indigo-500/50 transition-all">
-        <h3 class="text-lg font-bold text-white mb-4">Reports</h3>
-        <ul class="space-y-3">
-          <li><a href="#" class="text-zinc-400 hover:text-indigo-400 text-sm flex items-center gap-2">
-            <span class="text-indigo-500">›</span> View All Reports</a></li>
-        </ul>
-      </div>
+  <h3 class="text-lg font-bold text-white mb-4">Reports</h3>
+  <ul class="space-y-3">
+    <li>
+      <a routerLink="/admin/reports/generate" class="text-zinc-400 hover:text-indigo-400 text-sm flex items-center gap-2 cursor-pointer">
+        <span class="text-indigo-500">›</span> Generate Reports
+      </a>
+      </li>
+      <li><a routerLink="/admin/reports/all" class="text-zinc-400 hover:text-indigo-400 text-sm flex items-center gap-2">
+            <span class="text-indigo-500">›</span> View All Reports</a>
+    </li>
+  </ul>
+</div>
 
     </div>
   </div>
+  <!-- outlet for nested admin routes (reports, users, etc.) -->
+  <router-outlet></router-outlet>
 </main>

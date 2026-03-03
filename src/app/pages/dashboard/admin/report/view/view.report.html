@@ -1,0 +1,83 @@
+<app-header></app-header>
+
+<main class="p-8 bg-zinc-950 min-h-[calc(100vh-64px)] text-white">
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="flex justify-between items-end mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-indigo-400">Report Database</h1>
+        <p class="text-zinc-500 text-sm mt-1">Reviewing all historical performance metrics across departments.</p>
+      </div>
+      <button routerLink="/admin/reports/generate" 
+              class="bg-zinc-900 border border-zinc-800 hover:border-indigo-500 text-zinc-300 px-5 py-2.5 rounded-xl text-sm font-medium transition-all">
+        + Generate New
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500 mx-auto"></div>
+      <p class="text-zinc-500 mt-4">Accessing records...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-400 text-sm mb-6">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading" class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-zinc-950 text-zinc-500 text-[10px] uppercase tracking-[0.15em] border-b border-zinc-800">
+            <tr>
+              <th class="px-6 py-5">Ref ID</th>
+              <th class="px-6 py-5">Department</th>
+              <th class="px-6 py-5">Tasks (Done/Total)</th>
+              <th class="px-6 py-5">Success Rate</th>
+              <th class="px-6 py-5">Generated On</th>
+              <th class="px-6 py-5 text-right">Management</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-800/50">
+            <tr *ngFor="let report of reports" class="hover:bg-zinc-800/30 transition-colors group">
+              <td class="px-6 py-4 font-mono text-xs text-indigo-500">#{{ report.reportID }}</td>
+              <td class="px-6 py-4">
+                <span class="font-semibold text-zinc-200">{{ report.departmentName }}</span>
+              </td>
+              <td class="px-6 py-4 text-sm">
+                <span class="text-emerald-500">{{ report.tasksCompleted }}</span> 
+                <span class="text-zinc-600 mx-1">/</span> 
+                <span class="text-zinc-400">{{ report.tasksCompleted + report.pendingTasks }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-16 bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-indigo-500 h-full" [style.width.%]="report.completionRate"></div>
+                  </div>
+                  <span class="text-xs font-bold text-indigo-400">{{ report.completionRate | number:'1.0-0' }}%</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-xs text-zinc-500">
+                {{ report.generatedDate | date:'MMM d, y • HH:mm' }}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <button (click)="onDeleteReport(report.reportID)" 
+                        class="text-zinc-600 hover:text-red-500 p-2 transition-all"
+                        title="Delete Record">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="reports.length === 0">
+              <td colspan="6" class="px-6 py-20 text-center">
+                <div class="text-zinc-700 text-4xl mb-4">📂</div>
+                <p class="text-zinc-500 italic">No reports found in the database.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
