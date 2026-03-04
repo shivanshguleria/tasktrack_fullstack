@@ -15,14 +15,15 @@ import {
 import { AuthService } from '../../../../../../../core/services/auth.service';
 import { AdminService } from '../../../../../../../core/services/admin.service';
 import { signal } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 // import {DropdownModule} from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-
+import { CommentDto } from '../../../../../../../shared/models/comment.model';
+import { CommentService } from '../../../../../../../core/services/comment.service';
 @Component({
   selector: 'app-task-detail',
-  imports: [BackButtonComponent, HeaderComponent, CommonModule, DialogModule, ReactiveFormsModule],
+  imports: [BackButtonComponent, HeaderComponent, CommonModule, DialogModule, ReactiveFormsModule,FormsModule],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.css',
 })
@@ -33,15 +34,20 @@ export default class TaskDetail {
   private dueDateService = inject(DueDateService);
   private taskService = inject(TaskService);
   private userService = inject(AdminService);
+  private commentService = inject(CommentService);
   task = signal<TaskData | null>(null);
   user = signal<UserDTO | null>(null);
   dueDate = signal<DueDateInfo | null>(null);
   isSubtaskDialogVisible = signal(false);
   availableUsers = signal<UserDTO[]>([]);
+  comments = signal<any[]>([]);
+  comment_user : UserDTO | null   =null ;
+  formText: string = '';
 
   ngOnInit(): void {
     if (this.taskId) {
       this.getTaskById();
+      this.getComments();
     }
   }
 
@@ -124,6 +130,8 @@ export default class TaskDetail {
     assignedToUserId: new FormControl<number | null>(null, [Validators.required]),
     status: new FormControl('OPEN'),
   });
+  
+  
 
   showCreateDialog() {
     this.subtaskForm.reset({ status: 'OPEN' });
@@ -195,4 +203,63 @@ onDelete(subTaskId: number) {
   }
 }
 //commit
+  userMap = signal<Map<number, UserDTO>>(new Map());
+
+getComments() {
+  const id = Number(this.taskId);
+  this.commentService.getCommentsByTask(id).subscribe({
+    next: (res: any) => {
+      const commentData = Array.isArray(res) ? res : res.data || [];
+      this.comments.set(commentData);
+      
+      // After loading comments, fetch names for all unique userIds
+      this.fetchUserNames(commentData);
+    },
+    error: (err) => {
+      if (err.status === 404) this.comments.set([]);
+    }
+  });
+}
+
+private fetchUserNames(comments: any[]) {
+  const uniqueUserIds = [...new Set(comments.map(c => c.userId))];
+  
+  uniqueUserIds.forEach(id => {
+    // Only fetch if we don't already have the user in our map
+    if (!this.userMap().has(id)) {
+      this.userService.getUserById(id).subscribe({
+        next: (res) => {
+          this.userMap.update(map => {
+            const newMap = new Map(map);
+            newMap.set(id, res.data); // Assuming res.data contains the UserDTO
+            return newMap;
+          });
+        }
+      });
+    }
+  });
+}
+
+// Helper method for the HTML
+getUserName(userId: number): string {
+  return this.userMap().get(userId)?.userName || 'Loading...';
+}
+  // 6. Add Post Logic
+  addComment() {
+    if (!this.formText.trim()) return;
+    
+    const dto: CommentDto = {
+      taskId: Number(this.taskId),
+      text: this.formText
+    };
+
+    this.commentService.addComment(dto).subscribe({
+      next: () => {
+        this.formText = ''; // Clear input
+        this.getComments(); // Refresh list
+      }
+    });
+  }
+
+
 }
