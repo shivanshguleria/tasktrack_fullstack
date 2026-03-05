@@ -22,6 +22,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { toast } from 'ngx-sonner';
 import { CommentDto } from '../../../../../../../shared/models/comment.model';
 import { CommentService } from '../../../../../../../core/services/comment.service';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-task-detail',
   imports: [BackButtonComponent, HeaderComponent, CommonModule, DialogModule, ReactiveFormsModule,FormsModule],
@@ -44,13 +45,45 @@ export default class TaskDetail {
   comments = signal<any[]>([]);
   comment_user : UserDTO | null   =null ;
   formText: string = '';
-
+  managerUserId?: number;
+  private commentsSubscriber?:Subscription;
   ngOnInit(): void {
     if (this.taskId) {
       this.getTaskById();
-      this.getComments();
+      // this.getComments();
+      this.commentsSubscriber = this.commentService
+      .getAllCommentsForByPolling(parseInt(this.taskId))
+.subscribe({
+    next: (res: any) => {
+      const commentData = Array.isArray(res) ? res : res.data || [];
+      this.comments.set(commentData);
+      
+      // After loading comments, fetch names for all unique userIds
+      this.fetchUserNames(commentData);
+    },
+    error: (err) => {
+      if (err.status === 404) this.comments.set([]);
+    }
+  });
     }
   }
+
+
+  getComments() {
+  const id = Number(this.taskId);
+  this.commentService.getAllCommentsForByPolling(id).subscribe({
+    next: (res: any) => {
+      const commentData = Array.isArray(res) ? res : res.data || [];
+      this.comments.set(commentData);
+      
+      // After loading comments, fetch names for all unique userIds
+      this.fetchUserNames(commentData);
+    },
+    error: (err) => {
+      if (err.status === 404) this.comments.set([]);
+    }
+  });
+}
 
   constructor() {
     this.taskId = this.route.snapshot.paramMap.get('taskId');
@@ -210,21 +243,7 @@ onDelete(subTaskId: number) {
 //commit
   userMap = signal<Map<number, UserDTO>>(new Map());
 
-getComments() {
-  const id = Number(this.taskId);
-  this.commentService.getCommentsByTask(id).subscribe({
-    next: (res: any) => {
-      const commentData = Array.isArray(res) ? res : res.data || [];
-      this.comments.set(commentData);
-      
-      // After loading comments, fetch names for all unique userIds
-      this.fetchUserNames(commentData);
-    },
-    error: (err) => {
-      if (err.status === 404) this.comments.set([]);
-    }
-  });
-}
+
 
 private fetchUserNames(comments: any[]) {
   const uniqueUserIds = [...new Set(comments.map(c => c.userId))];
@@ -236,6 +255,10 @@ private fetchUserNames(comments: any[]) {
         next: (res) => {
           this.userMap.update(map => {
             const newMap = new Map(map);
+            if(res.data.role == "MANAGER") {
+              this.managerUserId = id;
+              
+            }
             newMap.set(id, res.data); // Assuming res.data contains the UserDTO
             return newMap;
           });
@@ -262,6 +285,7 @@ getUserName(userId: number): string {
       next: () => {
         this.formText = ''; // Clear input
         this.getComments(); // Refresh list
+        this.commentsSubscriber?.unsubscribe()
       }
     });
   }
