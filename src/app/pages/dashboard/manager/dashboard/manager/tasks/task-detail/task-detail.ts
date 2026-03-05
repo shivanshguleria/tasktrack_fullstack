@@ -15,14 +15,17 @@ import {
 import { AuthService } from '../../../../../../../core/services/auth.service';
 import { AdminService } from '../../../../../../../core/services/admin.service';
 import { signal } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 // import {DropdownModule} from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-
+import { toast } from 'ngx-sonner';
+import { CommentDto } from '../../../../../../../shared/models/comment.model';
+import { CommentService } from '../../../../../../../core/services/comment.service';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-task-detail',
-  imports: [BackButtonComponent, HeaderComponent, CommonModule, DialogModule, ReactiveFormsModule],
+  imports: [BackButtonComponent, HeaderComponent, CommonModule, DialogModule, ReactiveFormsModule,FormsModule],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.css',
 })
@@ -33,17 +36,54 @@ export default class TaskDetail {
   private dueDateService = inject(DueDateService);
   private taskService = inject(TaskService);
   private userService = inject(AdminService);
+  private commentService = inject(CommentService);
   task = signal<TaskData | null>(null);
   user = signal<UserDTO | null>(null);
   dueDate = signal<DueDateInfo | null>(null);
   isSubtaskDialogVisible = signal(false);
   availableUsers = signal<UserDTO[]>([]);
-
+  comments = signal<any[]>([]);
+  comment_user : UserDTO | null   =null ;
+  formText: string = '';
+  managerUserId?: number;
+  private commentsSubscriber?:Subscription;
   ngOnInit(): void {
     if (this.taskId) {
       this.getTaskById();
+      // this.getComments();
+      this.commentsSubscriber = this.commentService
+      .getAllCommentsForByPolling(parseInt(this.taskId))
+.subscribe({
+    next: (res: any) => {
+      const commentData = Array.isArray(res) ? res : res.data || [];
+      this.comments.set(commentData);
+      
+      // After loading comments, fetch names for all unique userIds
+      this.fetchUserNames(commentData);
+    },
+    error: (err) => {
+      if (err.status === 404) this.comments.set([]);
+    }
+  });
     }
   }
+
+
+  getComments() {
+  const id = Number(this.taskId);
+  this.commentService.getAllCommentsForByPolling(id).subscribe({
+    next: (res: any) => {
+      const commentData = Array.isArray(res) ? res : res.data || [];
+      this.comments.set(commentData);
+      
+      // After loading comments, fetch names for all unique userIds
+      this.fetchUserNames(commentData);
+    },
+    error: (err) => {
+      if (err.status === 404) this.comments.set([]);
+    }
+  });
+}
 
   constructor() {
     this.taskId = this.route.snapshot.paramMap.get('taskId');
@@ -57,6 +97,7 @@ export default class TaskDetail {
       },
       error: (err) => {
         console.log(err.error);
+        toast.error("Error Loading tasks")
       },
     });
   }
@@ -69,6 +110,7 @@ export default class TaskDetail {
       },
       error: (err) => {
         console.log(err.error);
+      toast.error("Error Loading tasks")
       },
     });
   }
@@ -93,9 +135,11 @@ export default class TaskDetail {
         });
 
         console.log(`Subtask ${subTaskId} updated to ${newStatus}`);
+        toast.success(`Subtask ${subTaskId} updated to ${newStatus}`)
       },
       error: (err) => {
         console.error('Failed to update subtask status', err);
+        toast.error('Failed to update subtask status ')
         // Optional: Show a toast notification here
       },
     });
@@ -121,9 +165,10 @@ export default class TaskDetail {
 
   subtaskForm = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    assignedToUserId: new FormControl<number | null>(null, [Validators.required]),
     status: new FormControl('OPEN'),
   });
+  
+  
 
   showCreateDialog() {
     this.subtaskForm.reset({ status: 'OPEN' });
@@ -140,7 +185,6 @@ export default class TaskDetail {
   const formValues = this.subtaskForm.getRawValue();
   const payload: SubTaskCreateDTO = {
     title: formValues.title!,
-    assignedToUserId: formValues.assignedToUserId!,
     status: Status.Open,
     taskId: this.task()!.taskId,
   };
@@ -178,6 +222,7 @@ onDelete(subTaskId: number) {
     this.taskService.deleteSubTask(currentTask.taskId, subTaskId).subscribe({
       next: () => {
         // Refresh the page to show the updated list and clear any UI state
+        toast.info("Sub task with id: " + subTaskId +  " was deleted" )
         this.task.update((prev) => {
         if (!prev) return null;
 
@@ -190,9 +235,60 @@ onDelete(subTaskId: number) {
       },
       error: (err) => {
         console.error('Failed to delete subtask', err);
+ toast.error('Failed to delete subtask')
       }
     });
   }
 }
 //commit
+  userMap = signal<Map<number, UserDTO>>(new Map());
+
+
+
+private fetchUserNames(comments: any[]) {
+  const uniqueUserIds = [...new Set(comments.map(c => c.userId))];
+  
+  uniqueUserIds.forEach(id => {
+    // Only fetch if we don't already have the user in our map
+    if (!this.userMap().has(id)) {
+      this.userService.getUserById(id).subscribe({
+        next: (res) => {
+          this.userMap.update(map => {
+            const newMap = new Map(map);
+            if(res.data.role == "MANAGER") {
+              this.managerUserId = id;
+              
+            }
+            newMap.set(id, res.data); // Assuming res.data contains the UserDTO
+            return newMap;
+          });
+        }
+      });
+    }
+  });
+}
+
+// Helper method for the HTML
+getUserName(userId: number): string {
+  return this.userMap().get(userId)?.userName || 'Loading...';
+}
+  // 6. Add Post Logic
+  addComment() {
+    if (!this.formText.trim()) return;
+    
+    const dto: CommentDto = {
+      taskId: Number(this.taskId),
+      text: this.formText
+    };
+
+    this.commentService.addComment(dto).subscribe({
+      next: () => {
+        this.formText = ''; // Clear input
+        this.getComments(); // Refresh list
+        this.commentsSubscriber?.unsubscribe()
+      }
+    });
+  }
+
+
 }

@@ -8,7 +8,7 @@ import { Status } from '../../../../shared/enums/status.enum';
 import { Department } from '../../../../shared/enums/department.enum';
 import { HeaderComponent } from '../../../../shared/components/header/header';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button';
-
+import { toast } from 'ngx-sonner';
 @Component({
   selector: 'app-manage-users',
   standalone: true,
@@ -49,7 +49,11 @@ export class ManageUsersComponent implements OnInit {
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: () => this.isLoading = false
+      error: (e) => {
+        
+        this.isLoading = false
+        toast.error("Error loading users")
+      }
     });
   }
 
@@ -67,10 +71,12 @@ export class ManageUsersComponent implements OnInit {
       this.adminService.deleteUser(this.deleteUserTarget.userId).subscribe({
         next: (res) => {
           this.closeDeleteModal();
+          toast.info("User with id: " + this.deleteUserTarget?.userId + "was deleted")
           this.loadUsers();
         },
         error: (err) => {
-          alert(err.error?.message || 'Delete failed');
+          toast.error(err.error?.message || 'Delete failed')
+          // alert(err.error?.message || 'Delete failed');
           this.closeDeleteModal();
         }
       });
@@ -90,7 +96,8 @@ export class ManageUsersComponent implements OnInit {
           this.closeModal();
           this.loadUsers();
         },
-        error: (err) => alert(err.error?.message || 'Update failed')
+        error: (err) => toast.error(err.error?.message || 'Update failed')
+        
       });
     }
   }

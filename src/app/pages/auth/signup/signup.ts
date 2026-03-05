@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Department } from '../../../shared/enums/department.enum';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-signup',
@@ -44,13 +45,15 @@ export class SignupComponent {
       this.authService.signup(this.signupForm.value).subscribe({
         next: (res) => {
           // Your backend returns: "Signup successful! Please wait for Admin activation."
-          alert(res.message);
+          // alert(res.message);
+          toast.success(res.message)
           this.router.navigate(['/login']);
         },
         error: (err) => {
           // Captures your UserAlreadyExistsException
           console.error(err);
-          alert(err.error?.message || 'Error during signup. Please try again.');
+          toast.error("Error during signup, please try again later")
+          // alert(err.error?.message || 'Error during signup. Please try again.');
         }
       });
     }

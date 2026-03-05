@@ -55,7 +55,7 @@ export interface SubTaskCreateDTO {
   taskId:number;
   status: Status;
   title: string;
-  assignedToUserId: number;
+
   
 }
 

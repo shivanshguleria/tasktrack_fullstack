@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router, RouterModule } from '@angular/router';
-
+import { toast} from 'ngx-sonner'
 @Component({
   selector: 'app-login',
   imports: [CommonModule,ReactiveFormsModule,RouterModule],
@@ -12,7 +12,7 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-
+ protected readonly toast = toast;
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService,
@@ -42,10 +42,12 @@ export class LoginComponent {
         } else {
           this.router.navigate(['/dashboard']);
         }
+        toast.success("Login Successfull")
       },
       error: (err) => {
         console.error('Login Error:', err);
-        alert(err.error?.message || 'Login failed. Please check your credentials.');
+        toast.error("Login Failed, please try again later")
+        // alert(err.error?.message || 'Login failed. Please check your credentials.');
       }
     });
   }

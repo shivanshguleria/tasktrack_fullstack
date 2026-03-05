@@ -1,7 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../core/services/notification.service';
-import { WebsocketService } from '../../core/services/websocket.service';
+import { toast } from 'ngx-sonner';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-bell',
@@ -9,35 +10,34 @@ import { WebsocketService } from '../../core/services/websocket.service';
   imports: [CommonModule],
   templateUrl: './bell.html'
 })
-export class BellComponent implements OnInit {
-
-  notifications: any[] = [];
-  unreadCount = 0;
+export class BellComponent implements OnInit, OnDestroy {
+  notifications = signal<any[]>([]);
+  unreadCount = signal(0);
   open = false;
+  
+  private pollingSub?: Subscription;
 
-  constructor(
-    private notificationService: NotificationService,
-    private websocketService: WebsocketService
-  ) {}
+  constructor(private notificationService: NotificationService) {}
 
   ngOnInit(): void {
-
-    // 🔹 Load old notifications from DB
-    this.notificationService.getNotifications().subscribe(data => {
-      this.notifications = data;
-      this.calculateUnread();
-    });
-
-    // 🔹 Listen for new notifications (real-time)
-    this.websocketService.connect((newNotification) => {
-      this.notifications.unshift(newNotification);
-      this.calculateUnread();
+    // 🔹 Start Polling (Every 10 seconds)
+    this.pollingSub = this.notificationService.getNotificationsPolling().subscribe({
+      next: (data) => {
+        // If the new list is longer than our current list, show a toast
+        if (data.length > this.notifications().length && this.notifications().length > 0) {
+          toast("You have new notifications");
+        }
+        
+        this.notifications.set(data);
+        this.calculateUnread();
+      },
+      error: (err) => console.error('Notification polling failed', err)
     });
   }
 
   calculateUnread() {
-    this.unreadCount =
-      this.notifications.filter(n => n.status === 'UNREAD').length;
+    const count = this.notifications().filter(n => n.status === 'UNREAD').length;
+    this.unreadCount.set(count);
   }
 
   toggle() {
@@ -45,12 +45,19 @@ export class BellComponent implements OnInit {
   }
 
   markRead(notificationId: number) {
-    this.notificationService.markAsRead(notificationId).subscribe(() => {
-      const notification = this.notifications.find(n => n.notificationId === notificationId);
-      if (notification) {
-        notification.status = 'READ';
+    this.notificationService.markAsRead(notificationId).subscribe({
+      next: () => {
+        // Update local state for immediate UI feedback
+        this.notifications.update(list => 
+          list.map(n => n.notificationId === notificationId ? { ...n, status: 'READ' } : n)
+        );
         this.calculateUnread();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // 🔹 Important: Stop the timer when component is destroyed
+    this.pollingSub?.unsubscribe();
   }
 }
