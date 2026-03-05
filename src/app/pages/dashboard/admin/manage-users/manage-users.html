@@ -1,152 +1,143 @@
- <app-header></app-header>
+<app-header></app-header>
 
-<div class="min-h-screen bg-zinc-950 p-8">
-  <div class="max-w-6xl mx-auto">
+<div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6 md:p-12 transition-colors duration-500">
+  <div class="max-w-7xl mx-auto">
     
-    <app-back-button label="Return to Dashboard"></app-back-button>
-
-    <div class="flex justify-between items-center mb-8">
-      <div>
-        <h1 class="text-3xl font-black text-white">System Directory</h1>
-        <p class="text-zinc-500">Manage account permissions and active status.</p>
-      </div>
-    </div>
-
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
-      <table *ngIf="allUsers.length > 0; else emptyState" class="w-full text-left text-sm">
-        <thead class="bg-zinc-800/50 text-zinc-400 uppercase text-[10px] font-black tracking-widest border-b border-zinc-800">
-          <tr>
-            <th class="px-6 py-4">User Details</th>
-            <th class="px-6 py-4">Role</th>
-            <th class="px-6 py-4">Status</th>
-            <th class="px-6 py-4">Department</th>
-            <th class="px-6 py-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-zinc-800">
-          <tr *ngFor="let user of allUsers" class="hover:bg-zinc-800/30 transition-colors">
-            <td class="px-6 py-4">
-              <div class="font-bold text-zinc-100">{{user.userName}}</div>
-              <div class="text-zinc-500 text-xs">{{user.email}}</div>
-            </td>
-            <td class="px-6 py-4 text-zinc-400">{{user.role}}</td>
-            <td class="px-6 py-4">
-              <span [ngClass]="user.status === 'ACTIVE' ? 'text-emerald-500 bg-emerald-500/10' : 'text-amber-500 bg-amber-500/10'" 
-                    class="px-2 py-0.5 rounded text-[10px] font-bold border border-current/20">
-                {{user.status}}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-zinc-400">{{user.department}}</td>
-            <td class="px-6 py-4 text-right space-x-3">
-              <button (click)="openEditModal(user)" class="text-indigo-400 hover:text-indigo-300 font-bold transition-colors">EDIT</button>
-              <button (click)="openDeleteModal(user)" class="text-red-500 hover:text-red-400 font-bold transition-colors">DELETE</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <ng-template #emptyState>
-        <div class="py-20 text-center text-zinc-500 font-medium">
-          {{ isLoading ? 'Loading data...' : 'No users found.' }}
+    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div class="space-y-4">
+        <app-back-button label="Return to Dashboard"></app-back-button>
+        <div>
+          <h1 class="text-4xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase">System Directory</h1>
+          <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+            Manage account permissions and active status
+          </p>
         </div>
-      </ng-template>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-zinc-200/50 dark:shadow-none">
+      
+      @if (allUsers.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-zinc-50 dark:bg-zinc-950/50 border-b border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-500 uppercase text-[10px] font-black tracking-[0.2em]">
+              <tr>
+                <th class="px-8 py-5">User Details</th>
+                <th class="px-8 py-5">System Role</th>
+                <th class="px-8 py-5">Status</th>
+                <th class="px-8 py-5">Department</th>
+                <th class="px-8 py-5 text-right">Operations</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+              @for (user of allUsers; track user.userName) {
+                <tr class="group hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-all duration-200">
+                  <td class="px-8 py-6">
+                    <div class="font-black text-zinc-900 dark:text-zinc-100 text-sm tracking-tight uppercase">{{user.userName}}</div>
+                    <div class="text-zinc-500 dark:text-zinc-500 text-[10px] font-bold tracking-tight uppercase">{{user.email}}</div>
+                  </td>
+                  <td class="px-8 py-6">
+                    <span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border border-indigo-200 dark:border-indigo-500/30 px-2 py-1 rounded-md bg-indigo-50 dark:bg-indigo-500/5">
+                      {{user.role}}
+                    </span>
+                  </td>
+                  <td class="px-8 py-6">
+                    <span [class]="user.status === 'ACTIVE' ? 'text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-500/10'" 
+                          class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-current/20">
+                      {{user.status}}
+                    </span>
+                  </td>
+                  <td class="px-8 py-6 text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-tighter">
+                    {{user.department}}
+                  </td>
+                  <td class="px-8 py-6 text-right space-x-2">
+                    <button (click)="openEditModal(user)" class="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-indigo-500 transition-colors px-3 py-2">Edit</button>
+                    <button (click)="openDeleteModal(user)" class="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-400 transition-colors px-3 py-2">Delete</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="py-32 flex flex-col items-center justify-center text-center">
+          <p class="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">
+            {{ isLoading ? 'Synchronizing Directory...' : 'Database Empty' }}
+          </p>
+        </div>
+      }
     </div>
   </div>
 </div>
 
-
-<div *ngIf="deleteUserTarget" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-  <div class="bg-zinc-900 border border-zinc-800 w-full max-w-[320px] rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-    
-    <div class="flex items-center gap-4 mb-5">
-      <div class="shrink-0 w-12 h-12 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
+@if (deleteUserTarget) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-md animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 w-full max-w-[360px] rounded-[2.5rem] p-10 shadow-2xl animate-in zoom-in-95">
+      <div class="flex flex-col items-center text-center space-y-4 mb-8">
+        <div class="w-16 h-16 bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Confirm Deletion</h3>
+          <p class="text-[10px] text-zinc-400 uppercase tracking-widest font-black mt-1">Irreversible System Action</p>
+        </div>
       </div>
-      <div>
-        <h3 class="text-lg font-bold text-white leading-tight">Confirm Delete</h3>
-        <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-black mt-1">System Action</p>
+
+      <p class="text-zinc-500 dark:text-zinc-400 text-xs text-center leading-relaxed mb-8">
+        Remove <span class="text-zinc-900 dark:text-white font-black underline underline-offset-4 decoration-rose-500">{{deleteUserTarget.userName}}</span> permanently from the system registry?
+      </p>
+
+      <div class="flex flex-col gap-3">
+        <button (click)="confirmDelete()" class="w-full bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-black py-4 rounded-2xl transition-all uppercase tracking-widest shadow-xl shadow-rose-900/20">Delete Identity</button>
+        <button (click)="closeDeleteModal()" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[10px] font-black py-4 rounded-2xl transition-all uppercase tracking-widest">Cancel</button>
       </div>
     </div>
+  </div>
+}
 
-    <p class="text-zinc-400 text-sm mb-6 leading-relaxed">
-      Are you sure you want to permanently remove <span class="text-white font-semibold">{{deleteUserTarget.userName}}</span> from the directory?
-    </p>
+@if (selectedUser) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/40 backdrop-blur-md animate-in fade-in">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl animate-in zoom-in-95">
+      <div class="mb-10">
+        <h2 class="text-3xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Modify Identity</h2>
+        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mt-1">Registry Record Update</p>
+      </div>
 
-    <div class="flex gap-3">
-      <button (click)="closeDeleteModal()" 
-              class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold py-3 rounded-xl transition-all">
-        CANCEL
-      </button>
-      <button (click)="confirmDelete()" 
-              class="flex-1 bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-3 rounded-xl transition-all shadow-lg shadow-red-900/20">
-        DELETE
-      </button>
+      <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="grid grid-cols-2 gap-6">
+        <div class="col-span-2 space-y-1.5">
+          <label class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Username</label>
+          <input formControlName="userName" class="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl px-5 py-4 text-sm font-bold text-zinc-900 dark:text-white outline-none focus:border-indigo-500 transition-all">
+        </div>
+        
+        <div class="col-span-2 space-y-1.5">
+          <label class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Email Address</label>
+          <input formControlName="email" class="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl px-5 py-4 text-sm font-bold text-zinc-900 dark:text-white outline-none focus:border-indigo-500 transition-all">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">System Role</label>
+          <select formControlName="role" class="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl px-5 py-4 text-sm font-bold text-zinc-900 dark:text-white outline-none focus:border-indigo-500 appearance-none transition-all">
+            @for (r of roles; track r) {
+              <option [value]="r">{{r}}</option>
+            }
+          </select>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Status</label>
+          <select formControlName="status" class="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl px-5 py-4 text-sm font-bold text-zinc-900 dark:text-white outline-none focus:border-indigo-500 appearance-none transition-all">
+            @for (s of statuses; track s) {
+              <option [value]="s">{{s}}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-span-2 flex gap-3 mt-6">
+          <button type="button" (click)="closeModal()" class="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-black text-[10px] uppercase tracking-widest py-4 rounded-2xl hover:bg-zinc-200 transition-colors">Cancel</button>
+          <button type="submit" [disabled]="editForm.invalid" class="flex-1 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-[10px] uppercase tracking-widest py-4 rounded-2xl shadow-xl shadow-indigo-600/10 hover:bg-indigo-600 dark:hover:bg-indigo-500 dark:hover:text-white disabled:opacity-30 transition-all">Commit Changes</button>
+        </div>
+      </form>
     </div>
   </div>
-</div>
-
-<div *ngIf="selectedUser" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-  <div class="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-[2rem] p-8 shadow-2xl">
-    <h2 class="text-2xl font-black text-white mb-6">Modify User</h2>
-    <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="grid grid-cols-2 gap-4">
-      <div class="col-span-2">
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Username</label>
-        <input formControlName="userName" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500">
-      </div>
-      <div class="col-span-2">
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Email</label>
-        <input formControlName="email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500">
-      </div>
-      <div>
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Role</label>
-        <select formControlName="role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none">
-          <option *ngFor="let r of roles" [value]="r">{{r}}</option>
-        </select>
-      </div>
-      <div>
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Status</label>
-        <select formControlName="status" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none">
-          <option *ngFor="let s of statuses" [value]="s">{{s}}</option>
-        </select>
-      </div>
-      <div class="col-span-2 flex gap-3 mt-6">
-        <button type="button" (click)="closeModal()" class="flex-1 bg-zinc-800 text-white font-bold py-3 rounded-xl transition-colors">CANCEL</button>
-        <button type="submit" [disabled]="editForm.invalid" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 disabled:opacity-50 transition-all">SAVE CHANGES</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div *ngIf="selectedUser" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-  <div class="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-[2rem] p-8 shadow-2xl">
-    <h2 class="text-2xl font-black text-white mb-6">Modify User</h2>
-    <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="grid grid-cols-2 gap-4">
-      <div class="col-span-2">
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Username</label>
-        <input formControlName="userName" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500">
-      </div>
-      <div class="col-span-2">
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Email</label>
-        <input formControlName="email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500">
-      </div>
-      <div>
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Role</label>
-        <select formControlName="role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none">
-          <option *ngFor="let r of roles" [value]="r">{{r}}</option>
-        </select>
-      </div>
-      <div>
-        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-1">Status</label>
-        <select formControlName="status" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none">
-          <option *ngFor="let s of statuses" [value]="s">{{s}}</option>
-        </select>
-      </div>
-      <div class="col-span-2 flex gap-3 mt-6">
-        <button type="button" (click)="closeModal()" class="flex-1 bg-zinc-800 text-white font-bold py-3 rounded-xl transition-colors">CANCEL</button>
-        <button type="submit" [disabled]="editForm.invalid" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 disabled:opacity-50 transition-all">SAVE CHANGES</button>
-      </div>
-    </form>
-  </div>
-</div>
+}

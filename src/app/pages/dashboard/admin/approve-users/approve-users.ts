@@ -7,7 +7,7 @@ import { BackButtonComponent } from '../../../../shared/components/back-button/b
 import { UserResponseDto } from '../../../../shared/models/user.model';
 import { Role } from '../../../../shared/enums/role.enum';
 import { Status } from '../../../../shared/enums/status.enum';
-
+import { toast } from 'ngx-sonner';
 @Component({
   selector: 'app-approve-users',
   standalone: true,
@@ -53,6 +53,7 @@ export class ApproveUsersComponent implements OnInit {
         this.cdr.detectChanges(); 
       },
       error: (err) => {
+        toast.error("Fetch failded " + err)
         console.error('Fetch failed', err);
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -72,9 +73,10 @@ export class ApproveUsersComponent implements OnInit {
       this.adminService.activateUser(this.selectedUser.userId, this.activationForm.value).subscribe({
         next: () => {
           this.closeModal();
+          toast.success("User with id " + this.selectedUser?.userId + "is now active")
           this.loadInactiveUsers(); 
         },
-        error: (err) => alert('Activation failed: ' + (err.error?.message || 'Server error'))
+        error: (err) => toast.error('Activation failed: ' + (err.error?.message || 'Server error'))
       });
     }
   }

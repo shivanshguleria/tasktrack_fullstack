@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, share, shareReplay, switchMap, timer } from 'rxjs';
 import { Comment, CommentDto } from '../../shared/models/comment.model';
 import { environment } from '../../environments/environment';
 
@@ -21,5 +21,10 @@ export class CommentService {
   // GET: Get all comments for a task
   getCommentsByTask(taskId: number): Observable<Comment[]> {
     return this.http.get<Comment[]>(`${this.apiUrl}/task/${taskId}`);
+  }
+
+  getAllCommentsForByPolling(taskId:number):Observable<Comment[]> {
+    return timer(0, 1000).pipe(switchMap(() => this.getCommentsByTask(taskId)),  shareReplay(1))
+   
   }
 }
