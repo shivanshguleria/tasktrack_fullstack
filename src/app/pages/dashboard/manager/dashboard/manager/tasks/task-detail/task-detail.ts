@@ -53,6 +53,7 @@ export default class TaskDetail {
   ngOnInit(): void {
     if (this.taskId) {
       this.getTaskById();
+      this.getRole();
       // this.getComments();
       this.setupCommentsSubscription();
     }
