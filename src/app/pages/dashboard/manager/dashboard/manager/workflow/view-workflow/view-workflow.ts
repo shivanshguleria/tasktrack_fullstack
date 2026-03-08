@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { WorkflowService } from '../../../../../../../core/services/workflow.service';
@@ -109,6 +109,7 @@ console.log(stepIndex, currentWorkflow.workflowSteps)
   constructor(private userService:AdminService,private taskService:TaskService) {
     this.workflowId = this.route.snapshot.paramMap.get('workflowId');
 
+
   }
 
   ngOnInit(): void {
@@ -190,7 +191,12 @@ console.log(stepIndex, currentWorkflow.workflowSteps)
  
   
   }
-handleRejectDialogClose() {
+handleRejectDialogClose(success: boolean) {
+  if(success) {
+    this.getWorkflow()
+        this.openDropdownId.set(null);
+        toast.success("Workflow Step status updated")
+  }
   this.rejectDialogOpenFlag.set(false)
 }
   onDialogConfirm(): void {

@@ -116,7 +116,7 @@ export class RejectWorkflowStepStatusComponent {
   @Input() tasks!:TaskDTO[];
     @Input() workflowId!:number;  
     @Input() workflowStepId!:number;
-  @Output() cancel = new EventEmitter<void>();
+  @Output() cancel = new EventEmitter<boolean>();
   isLoading = signal(false)
   constructor(private workflowService: WorkflowService){}
   updateWorkflowStepData= signal<UpdateWorkflowStepRequest>({
@@ -155,7 +155,7 @@ export class RejectWorkflowStepStatusComponent {
                 this.workflowService.getWorkflowById(this.workflowId);
                 this.isLoading.update(v => !v);
                 this.isOpen.set(false)
- this.cancel.emit();
+ this.cancel.emit(true);
                 
            
         },
@@ -173,7 +173,7 @@ export class RejectWorkflowStepStatusComponent {
   }
 
   onCancel(): void {
-    this.cancel.emit();
+    this.cancel.emit(false);
     
     this.updateWorkflowStepData.set(this.resetForm())
     this.isOpen.set(false);

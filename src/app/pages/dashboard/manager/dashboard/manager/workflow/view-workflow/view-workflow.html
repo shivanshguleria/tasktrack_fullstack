@@ -81,7 +81,7 @@
 [tasks]="workflowStep.task"
 [workflowId]="workflow()!.workflowId"
 [workflowStepId]="workflowStep.workflowStepId"
-(cancel)="handleRejectDialogClose()"
+(cancel)="handleRejectDialogClose($event)"
 ></app-update-reject-workflow-step>
                         @if (workflowStep.task.length > 0) {
                       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 shrink-0">

@@ -72,7 +72,7 @@
                 <div class="flex flex-col">
                   <span class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Active Phase</span>
                   <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200">
-                    {{ workflow.workflowSteps.find(el => el.workflowStepId === workflow.currentStep)?.stepName || "Not Started"}}
+                    {{ workflow.status === 'COMPLETED'?'No Active Phase': workflow.workflowSteps.find(el => el.workflowStepId === workflow.currentStep)?.stepName || "Not Started"}}
                   </span>
                 </div>
               </div>
